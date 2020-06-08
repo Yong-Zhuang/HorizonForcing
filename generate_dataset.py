@@ -57,6 +57,11 @@ def build_data_series(
     global _DERIVATIVE
     global _SHARED_ARRAY
     global _TIME_STEPS
+    global meta, atol, rtol
+
+    x_high, x_low = meta["x_high"], meta["x_low"]
+    y_high, y_low = meta["y_high"], meta["y_low"]
+    z_high, z_low = meta["z_high"], meta["z_low"]
 
     X_ref = np.ctypeslib.as_array(_SHARED_ARRAY)
 
@@ -92,7 +97,7 @@ _LORENZ_META = {
     "z_low":0,
     "z_high":50,
     "dimension":3,
-    "params" = [28.0, 10.0, 8.0 / 3.0]
+    "params": [28.0, 10.0, 8.0 / 3.0]
 }
 _ROSSLER_META = {
     "x_low": -15,
@@ -102,7 +107,7 @@ _ROSSLER_META = {
     "z_low":0,
     "z_high":50,
     "dimension":3,
-    "params" = [0.1, 0.1, 18.0]
+    "params": [0.1, 0.1, 18.0]
 }
 
 # ----------------------------------------------------------------
@@ -148,6 +153,18 @@ parser.add_argument(
     default="./data/",
     help="Path where data should be saved."
 )
+parser.add_argument(
+    "-atol",
+    type=float,
+    default=1e-8,
+    help="Absolute tolerance for IVP solver."
+)
+parser.add_argument(
+    "-rtol",
+    type=float,
+    default=1e-8,
+    help="Relative Tolerance for IVP solver."
+)
 if __name__ == "__main__":
     args = parser.parse_args()
 
@@ -155,9 +172,11 @@ if __name__ == "__main__":
     n_examples = args.n
     n_test_examples = args.n_test
     total_n = n_examples + n_test_examples
+    atol = args.atol
+    rtol = args.rtol
 
     n_steps = args.ns
-    dataset_name = args.s
+    dataset_name = args.system
     del_t = args.dt
     output_dir = args.output_dir
 
@@ -171,12 +190,12 @@ if __name__ == "__main__":
     if dataset_name == "lorenz":
         meta = _LORENZ_META
         _DERIVATIVE = get_lorenz_derivative(
-            *meta.params
+            *meta["params"]
         )
     else:
         meta = _ROSSLER_META
         _DERIVATIVE = get_rossler_derivative(
-            *meta.params
+            *meta["params"]
         )
 
     dimension = meta["dimension"]
