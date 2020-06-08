@@ -228,7 +228,7 @@ if __name__ == "__main__":
         f"X_train_{dataset_name}.npy"
     )
 
-    test_output_file = Path(output_dir)(
+    test_output_file = Path(output_dir)/(
         f"X_test_{dataset_name}.npy"
     )
 
