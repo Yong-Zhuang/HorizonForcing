@@ -129,4 +129,15 @@ dmypy.json
 .pyre/
 
 *.npy
-data/
+data/backup/
+data/datasets/backup/
+logs/
+results/backup/
+results/pre_trained/
+saved_models/backup/
+backup/
+BLSMATLAB/
+logs/
+model/__pycache__
+.vscode
+core
