@@ -4,7 +4,7 @@ MODEL_FOLDER = "saved_models"
 RESULT_FOLDER = "results"
 DATA_FOLDER = "data"
 BATCH_SIZE = 50
-EPOCHS = 150
+EPOCHS = 2
 FOLDS = 5
 PRETRAINED = True
 
@@ -30,14 +30,13 @@ ESTIMATORS = {
             "GRU_baseline":{"lr":-2},
             "MT":{"num_head":1, "num_encoder":1, "lr":-2},
             "GRU_ss":{"decay":"is", "lr":-2},
-            "GRU_ss":{"decay":"exp", "lr":-2},
-            "GRU_ss":{"decay":"linear", "lr":-2},
-            "GRU_hf_5":{"k":5},
-            "GRU_hf_10":{"k":10},
-            "GRU_hf_15":{"k":15},
-            "GRU_hf_20":{"k":20},
-            "GRU_hf_25":{"k":25},
-            "GRU_k_20":{"k":20},
+            # "GRU_ss":{"decay":"exp", "lr":-2},
+            # "GRU_ss":{"decay":"linear", "lr":-2},
+            "GRU_hf_5":{"k":5, "lr":-4},
+            "GRU_hf_10":{"k":10, "lr":-5},
+            "GRU_hf_15":{"k":15, "lr":-6},
+            "GRU_hf_20":{"k":20, "lr":-7},
+            "GRU_k_20":{"k":20, "lr":-2},
             }
 
 

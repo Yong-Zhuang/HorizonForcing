@@ -1,11 +1,15 @@
 # HorizonForcing
 
-make sure that the code directory has following sub folders: data, results, saved_models, logs.
+Use the experiments_results notebook to regenrate the experimental results in the paper.
 
-run following command to regenrate evaluation results in the paper:
-python evaluation.py -data 1
-where -data: 1 means lorenz63 system, 2 means rossler system
+run following command to regenrate data samples:
+    python generate_dataset.py -s electricity
+where -s is the system to build data for, optional values are ["lorenz", "accelerometer", "gait_force", "roaming_worm", "electricity"]
+
+run following command to genrate the index of the samples:   
+    python training.py -gpu 1 -s electricity -mode 1
+
 
 run following command to retrain all models:
-python training.py -gpu 0 -data 1
-where -data: 1 means lorenz63 system, 2 means rossler system
+    python training.py -gpu 1 -s electricity
+where -s is the system to build data for, optional values are ["lorenz", "accelerometer", "gait_force", "roaming_worm", "electricity"]
