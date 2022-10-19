@@ -103,6 +103,7 @@ parser = argparse.ArgumentParser (description='horizon_forcing')
 parser.add_argument('-gpu', metavar='int', type=str, default='0', required=True, help='gpu index, using which GPU')
 parser.add_argument(
     "-s",
+    "--system",
     type=str.lower,
     choices=["lorenz", "accelerometer","gait_force", "roaming_worm","electricity"],
     default="lorenz",

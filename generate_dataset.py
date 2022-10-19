@@ -42,7 +42,8 @@ parser.add_argument(
     type=str.lower,
     choices=["lorenz", "accelerometer", "gait_force", "roaming_worm", "electricity"],
     default="lorenz",
-    help="System to build data for."
+    help="System to build data for.", 
+    required=True
 )
 
 if __name__ == "__main__":
@@ -62,7 +63,7 @@ if __name__ == "__main__":
         lorenz = chaos_sys.Lorenz(setting["delta-t"], setting["total_steps"])
         sequence =lorenz.single_sequence_generating()[setting["burn_steps"]:]
     else:
-        sequence = pd.read_csv(f"data/datasets/{setting["file"]}").values
+        sequence = pd.read_csv(f"data/datasets/{setting['file']}").values
     samples = split_sequence(sequence, setting["window"],setting["stride"])
     train_samples, test_samples = samples[:setting["n_training"]], samples[setting["n_training"]:]
         

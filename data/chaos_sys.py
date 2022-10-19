@@ -35,7 +35,7 @@ class ChaosBase:
         self.del_t = del_t
         self.n_steps = n_steps
         self.time_steps = np.arange(0, self.del_t * n_steps, self.del_t)
-        self.derivative = self.get_derivative(*self.meta["params"])
+        self.get_derivative(*self.meta["params"])
 
 
     
@@ -106,7 +106,7 @@ class ChaosBase:
     def single_sequence_generating(self):
          # -s lorenz_s -ns 58000 -bs 8000 -dt 0.01 -n 8500   ; 1201
         init_sate = [1,1,1]
-        sequence = odeint(self.derivative(*self.meta["params"]), init_sate, self.time_steps, tfirst = True)
+        sequence = odeint(self.derivate, init_sate, self.time_steps, tfirst = True)
         return sequence
 
     @abstractmethod
@@ -114,7 +114,7 @@ class ChaosBase:
         pass
 
 class Lorenz(ChaosBase): 
-    def __init__(self, del_t, n_steps, atol, rtol):  
+    def __init__(self, del_t, n_steps):  
         # self.metadata dictionaries to store generation parameters
         # used for each attractor type.
         self.meta = {
@@ -127,7 +127,7 @@ class Lorenz(ChaosBase):
             "dimension":3,
             "params": [28.0, 10.0, 8.0 / 3.0]
         }       
-        super(Lorenz, self).__init__(del_t, n_steps, atol, rtol)    
+        super(Lorenz, self).__init__(del_t, n_steps)    
 
 
     # Use closures to return self.derivative functions
@@ -139,7 +139,7 @@ class Lorenz(ChaosBase):
         self.derivate = f
 
 class Rossler(ChaosBase):  
-    def __init__(self, del_t, n_steps, atol, rtol):     
+    def __init__(self, del_t, n_steps):     
         self.meta = {
             "x_low": -15,
             "x_high": 15,
@@ -150,7 +150,7 @@ class Rossler(ChaosBase):
             "dimension":3,
             "params": [0.1, 0.1, 18.0]
         }  
-        super(Rossler, self).__init__(del_t, n_steps, atol, rtol)  
+        super(Rossler, self).__init__(del_t, n_steps)  
 
     def get_derivative(self,a,b,c):
         def f(t, state):
