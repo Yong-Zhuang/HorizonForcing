@@ -130,3 +130,8 @@ dmypy.json
 
 *.npy
 data/
+backup
+logs
+BLSMATLAB
+core
+.vscode
