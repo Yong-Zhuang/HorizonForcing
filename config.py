@@ -39,7 +39,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 2,
         "input_steps": 100,
-        "title": "$Accelerometer$",
+        "title": "$Accelerometer_sub1$",
         "inference_steps": 300,
         "gamma": 0.2935,
         "zeta": 0.3635,
@@ -61,7 +61,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 2,
         "input_steps": 100,
-        "title": "$Accelerometer$",
+        "title": "$Accelerometer_sub3$",
         "inference_steps": 300,
         "gamma": 0.2935,
         "zeta": 0.3635,
@@ -83,7 +83,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 4,
         "input_steps": 100,
-        "title": "$Roaming$ $Worm$",
+        "title": "$Dwelling$ $Worm$ sub1",
         "inference_steps": 160,
         "gamma": 2.265,
         "zeta": 0.8575,
@@ -105,7 +105,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 4,
         "input_steps": 100,
-        "title": "$Roaming$ $Worm$",
+        "title": "$Dwelling$ $Worm$ sub2",
         "inference_steps": 160,
         "gamma": 2.265,
         "zeta": 0.8575,
@@ -127,7 +127,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 4,
         "input_steps": 100,
-        "title": "$Roaming$ $Worm$",
+        "title": "$ECG_1$",
         "inference_steps": 160,
         "gamma": 2.265,
         "zeta": 0.8575,
@@ -149,7 +149,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 4,
         "input_steps": 100,
-        "title": "$Roaming$ $Worm$",
+        "title": "$ECG_2",
         "inference_steps": 160,
         "gamma": 2.265,
         "zeta": 0.8575,
@@ -166,12 +166,13 @@ EXP_SETTING = {
     },
     "ecosystem": {
         "file": "ecosystem.csv.gz",
+        "sub": "",
         "n_training": 5600,
         "window": 400,
         "stride": 4,
         "input_steps": 100,
-        "title": "$Roaming$ $Worm$",
-        "inference_steps": 160,
+        "title": "$Ecosystem$",
+        "inference_steps": 150,
         "gamma": 2.265,
         "zeta": 0.8575,
         "mu": 0.4615,
@@ -258,7 +259,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 9,
         "input_steps": 100,
-        "title": "$Gait$ $Force$",
+        "title": "$Gait$ $Marker$ $Tracker$ sub 1",
         "inference_steps": 300,
         "gamma": 158.6875,
         "zeta": 0.501,
@@ -280,7 +281,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 9,
         "input_steps": 100,
-        "title": "$Gait$ $Force$",
+        "title": "$Gait$ $Marker$ $Tracker$ sub 2",
         "inference_steps": 300,
         "gamma": 158.6875,
         "zeta": 0.501,
@@ -297,11 +298,12 @@ EXP_SETTING = {
     },
     "geyser": {
         "file": "geyser_train_test.csv.gz",
+        "sub": "",
         "n_training": 5600,
         "window": 400,
         "stride": 9,
         "input_steps": 100,
-        "title": "$Gait$ $Force$",
+        "title": "$Old Faithful Geyser$",
         "inference_steps": 300,
         "gamma": 158.6875,
         "zeta": 0.501,
@@ -318,11 +320,12 @@ EXP_SETTING = {
     },
     "mouse": {
         "file": "mouse.csv.gz",
+        "sub": "",
         "n_training": 5600,
         "window": 400,
         "stride": 9,
         "input_steps": 100,
-        "title": "$Gait$ $Force$",
+        "title": "$Mouse$",
         "inference_steps": 300,
         "gamma": 158.6875,
         "zeta": 0.501,
@@ -344,7 +347,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 9,
         "input_steps": 100,
-        "title": "$Gait$ $Force$",
+        "title": "$Pendulum_1$",
         "inference_steps": 300,
         "gamma": 158.6875,
         "zeta": 0.501,
@@ -366,7 +369,7 @@ EXP_SETTING = {
         "window": 400,
         "stride": 9,
         "input_steps": 100,
-        "title": "$Gait$ $Force$",
+        "title": "$Pendulum_2$",
         "inference_steps": 300,
         "gamma": 158.6875,
         "zeta": 0.501,
@@ -437,9 +440,14 @@ COLOR_BANK = {
 }
 
 
-def get_dataset_name(system):
+# def get_dataset_name(system):
+#     setting = EXP_SETTING[system]
+#     return f"{system}/{setting['sub']}" if {setting["sub"]} else f"{system}"
+
+
+def get_dataset_name(system, sub):
     setting = EXP_SETTING[system]
-    return f"{system}/{setting['sub']}" if {setting["sub"]} else f"{system}"
+    return f"{system}/{sub}" if {sub} else f"{system}"
 
 
 def get_model_name(dataset_name, fold, normalization, x_y_lag):

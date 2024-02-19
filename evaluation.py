@@ -62,6 +62,7 @@ def metric_calculation(
     model_name="",
 ):  # alpha=0.4, beta = 0.8,gamma=0.4,rho = 11.4
     name = f"{model_name} on {dataset_name}:"
+    print(f"{name}, y_true shape {y_true.shape}; y_pred shape {y_pred.shape}")
     n_samples, n_vars = y_true.shape[0], y_true.shape[-1]
     nan_idx = np.isnan(y_true)
     y_true = y_true[~nan_idx].reshape((n_samples, -1, n_vars))
@@ -413,7 +414,7 @@ def _plot_effective_range(
         y="value",
         hue="variable",
         palette=palette,
-        ci="sd",
+        errorbar="sd",
         linewidth=5,
         data=pd.melt(dataframe, "index"),
         ax=ax,
@@ -460,6 +461,9 @@ def plot_comparison(
         model_name,
         norm,
     ):
+        print(
+            f"here 2 {dataset_name}, {model_name} pred shape is {pred.shape}; y_true shape is {y_true.shape}"
+        )
         perform, rmse, ne, smape, y_true, pred_bls = evaluation(
             pred, y_true, perform, gamma, mu, zeta, norm, dataset_name, model_name
         )
@@ -482,6 +486,9 @@ def plot_comparison(
         dataset_name = config.get_dataset_name(sys)
         train_samples, test_inputs, y_true = load_model_config(
             dataset_name, fold, normalization, x_steps
+        )
+        print(
+            f"train_samples {train_samples.shape}, test_inputs {test_inputs.shape}, y_true {y_true.shape}"
         )
         y_true = y_true[:, :inference_steps]
         saved_folder = config.get_model_name(dataset_name, fold, normalization, x_y_lag)
@@ -588,6 +595,9 @@ def plot_comparison(
                         saved_folder, test_inputs, inference_steps, x_y_lag
                     )
                 if pred is not None:
+                    print(
+                        f"{dataset_name}, {name}, pred shape is {pred.shape}; y_true shape is {y_true.shape}; inference_steps {inference_steps}"
+                    )
                     perform, rmse_out, ne_out, smape_out = get_results(
                         pred[:, x_steps : x_steps + inference_steps],
                         y_true,

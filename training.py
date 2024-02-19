@@ -161,10 +161,18 @@ parser.add_argument(
     "-s",
     "--system",
     type=str.lower,
-    choices=["lorenz", "accelerometer", "gait_force", "roaming_worm", "electricity"],
+    # choices=["lorenz", "accelerometer", "gait_force", "roaming_worm", "electricity"],
     default="lorenz",
     required=True,
     help="System to build data for.",
+)
+parser.add_argument(
+    "-sub",
+    "--sub",
+    type=str.lower,
+    default="1",
+    required=True,
+    help="Which subject?",
 )
 parser.add_argument("-norm", dest="norm", action="store_true")
 parser.add_argument("-no-norm", dest="norm", action="store_false")
