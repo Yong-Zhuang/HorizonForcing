@@ -1,4 +1,5 @@
 FROM tensorflow/tensorflow:latest-gpu-jupyter
+RUN apt-get update && apt-get install -y git
 RUN pip install --upgrade pip
 COPY requirements.txt /tmp/
 RUN pip install --requirement /tmp/requirements.txt
