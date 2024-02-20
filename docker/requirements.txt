@@ -3,3 +3,4 @@ pandas
 seaborn
 statsmodels
 progress
+tensorflow-probability

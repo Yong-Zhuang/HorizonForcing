@@ -5,10 +5,12 @@ Created on Sat Jan 28 2020
 
 import tensorflow as tf
 import math as m
-from tensorflow import keras
 import numpy as np
+import tensorflow_probability as tfp
+from tensorflow import keras
 from tensorflow.keras import backend as K
-from tensorflow.python.ops.distributions import bernoulli
+
+# from tensorflow.python.ops.distributions import bernoulli
 
 
 class DynamicPositionEmbedding(keras.layers.Layer):
@@ -409,10 +411,15 @@ class ScheduledSamplingLayer(keras.layers.Layer):
 
         def get_next_input(true, estimate):
             # Return -1s where we do not sample, and sample_ids elsewhere
-            select_sampler = bernoulli.Bernoulli(probs=self.beta, dtype=tf.bool)
-            select_sample = select_sampler.sample(sample_shape=self.batch_size)
+            current_batch_size = tf.shape(true)[0]
+            select_sampler = tfp.distributions.Bernoulli(
+                probs=self.beta, dtype=tf.bool
+            )  # bernoulli.Bernoulli(probs=self.beta, dtype=tf.bool)
+            select_sample = select_sampler.sample(sample_shape=current_batch_size)
             sample_ids = tf.where(
-                select_sample, tf.range(self.batch_size), tf.fill([self.batch_size], -1)
+                select_sample,
+                tf.range(current_batch_size),
+                tf.fill([current_batch_size], -1),
             )
 
             where_not_sampling = tf.cast(tf.where(sample_ids > -1), tf.int32)
@@ -420,6 +427,9 @@ class ScheduledSamplingLayer(keras.layers.Layer):
             # if self.i == 1:
             #     print(f"where_sampling shape {where_sampling.shape}; {where_sampling[:10]}")
             #     print(f"where_not_sampling shape {where_not_sampling.shape}; {where_not_sampling[:10]}")
+            # print(
+            #     f"where_not_sampling {where_not_sampling}; true shape {true.shape}; current_batch_size {tf.shape(true)[0]}"
+            # )
             _estimate = tf.gather_nd(estimate, where_sampling)
             _true = tf.gather_nd(true, where_not_sampling)
             # print(f"_estimate shape {_estimate.shape}; _true shape {_true.shape}")

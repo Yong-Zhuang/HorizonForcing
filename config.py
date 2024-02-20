@@ -1,14 +1,39 @@
+PRETRAINED = True
+DATA_FOLDER = "data"
 MODEL_FOLDER = "saved_models"
 RESULT_FOLDER = "results"
-DATA_FOLDER = "data"
 BATCH_SIZE = 50
-EPOCHS = 2
+EPOCHS = 150
 FOLDS = 5
-PRETRAINED = True
 
 EXP_SETTING = {
     "lorenz": {
         "file": "lorenz_0.05",
+        "sub": 0.05,
+        "total_steps": 58000,
+        "n_training": 8500,
+        "burn_steps": 8000,
+        "delta-t": 0.05,
+        "window": 1500,
+        "stride": 5,
+        "input_steps": 100,
+        "title": "$Lorenz$",
+        "inference_steps": 200,
+        "gamma": 3.1065,
+        "zeta": 0.228,
+        "mu": 0.1105,
+        "y_lim": {
+            "ett": [(0, 10), (0, 0.73), (0, 0.36)],
+            "hf": [(0, 9.2), (0, 0.72), (0, 0.35)],
+            "ett_hf": [(0, 9.2), (0, 0.72), (0, 0.35)],
+            "benchmark": [(0, 11), (0, 0.82), (0, 0.42)],
+            "all": [(0, 11), (0, 0.82), (0, 0.42)],
+            "transformers": [(0, 11), (0, 0.82), (0, 0.42)],
+            "recurrent": [(0, 11), (0, 0.82), (0, 0.42)],
+        },
+    },
+    "rossler": {
+        "file": "rossler_0.05",
         "sub": 0.05,
         "total_steps": 58000,
         "n_training": 8500,
@@ -173,9 +198,9 @@ EXP_SETTING = {
         "input_steps": 100,
         "title": "$Ecosystem$",
         "inference_steps": 150,
-        "gamma": 2.265,
-        "zeta": 0.8575,
-        "mu": 0.4615,
+        "gamma": 1.243,
+        "zeta": 0.066,
+        "mu": 0.305,
         "y_lim": {
             "ett": [(0, 4.2), (0, 1.7), (0, 0.9)],
             "hf": [(0, 3.3), (0, 1.23), (0, 0.65)],
@@ -450,7 +475,7 @@ def get_dataset_name(system, sub):
     return f"{system}/{sub}" if {sub} else f"{system}"
 
 
-def get_model_name(dataset_name, fold, normalization, x_y_lag):
-    if PRETRAINED:
+def get_model_name(dataset_name, fold, normalization, x_y_lag, pretrained=PRETRAINED):
+    if pretrained:
         return f"pre_trained/{dataset_name}/fold_{fold}/{normalization}/{x_y_lag}"
     return f"{dataset_name}/fold_{fold}/{normalization}/{x_y_lag}"

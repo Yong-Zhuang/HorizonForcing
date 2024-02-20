@@ -36,28 +36,21 @@ def generate_train_test_indices(training_samples, x_steps, dataset_name):
         fold_idx += 1
 
 
-def training(training_samples, x_steps, dataset_name, fold_idx, x_y_lag, norm):
+def training(
+    training_samples,
+    x_steps,
+    dataset_name,
+    fold_idx,
+    x_y_lag,
+    norm,
+    train_index,
+    val_index,
+):
     total_steps = x_steps + x_y_lag
     train_data = training_samples[:, :total_steps]
 
-    # for fold_idx in [1]:
-    train_index = np.load(
-        os.path.join(
-            f"{config.DATA_FOLDER}/{dataset_name}/indices",
-            f"{config.FOLDS}fold.{fold_idx}_train_index.npy",
-        )
-    )
-    val_index = np.load(
-        os.path.join(
-            f"{config.DATA_FOLDER}/{dataset_name}/indices",
-            f"{config.FOLDS}fold.{fold_idx}_val_index.npy",
-        )
-    )
-
     # name_prefix = prefix+f"_xsteps.{x_steps}_fold.{fold_idx}"
-    saved_folder = (
-        f"{config.MODEL_FOLDER}/{dataset_name}/fold_{fold_idx}/{norm}/{x_y_lag}"
-    )
+    saved_folder = f"{config.MODEL_FOLDER}/{config.get_model_name(dataset_name, fold_idx, norm, x_y_lag,False)}"
     X_train, y_train = (
         train_data[train_index][:, :-x_y_lag],
         train_data[train_index][:, x_y_lag:],
@@ -139,13 +132,16 @@ def training(training_samples, x_steps, dataset_name, fold_idx, x_y_lag, norm):
                 num_layer=setting["num_encoder"],
                 max_seq=x_steps,
             )
-        _, history = estimator.training(
-            train_X, train_Y, val_X, val_Y, config.BATCH_SIZE, config.EPOCHS
-        )
-        hist_df = pd.DataFrame(history.history)
-        hist_csv_file = f"{saved_folder}/{estimator.model_name}.csv"
-        with open(hist_csv_file, mode="w") as f:
-            hist_df.to_csv(f)
+        if not os.path.exists(estimator.MODEL_PATH):
+            _, history = estimator.training(
+                train_X, train_Y, val_X, val_Y, config.BATCH_SIZE, config.EPOCHS
+            )
+            hist_df = pd.DataFrame(history.history)
+            hist_csv_file = f"{saved_folder}/{estimator.model_name}.csv"
+            with open(hist_csv_file, mode="w") as f:
+                hist_df.to_csv(f)
+        else:
+            print(f"{estimator.model_name} has been trained before.")
 
 
 parser = argparse.ArgumentParser(description="horizon_forcing")
@@ -197,15 +193,27 @@ if __name__ == "__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     # Collect arguments
     setting = config.EXP_SETTING[args.system]
-    dataset_name = config.get_dataset_name(args.system)
+    dataset_name = config.get_dataset_name(args.system, args.sub)
     x_steps = setting["input_steps"]
 
-    if config.PRETRAINED:
-        train_data = np.load(
-            f"{config.DATA_FOLDER}/pre_generated/{dataset_name}/train.npy"
+    data_folder = (
+        f"{config.DATA_FOLDER}/pre_generated"
+        if config.PRETRAINED
+        else config.DATA_FOLDER
+    )
+    train_data = np.load(f"{data_folder}/{dataset_name}/train.npy")
+    train_index = np.load(
+        os.path.join(
+            f"{data_folder}/{dataset_name}/indices",
+            f"{config.FOLDS}fold.{args.fold}_train_index.npy",
         )
-    else:
-        train_data = np.load(f"{config.DATA_FOLDER}/{dataset_name}/train.npy")
+    )
+    val_index = np.load(
+        os.path.join(
+            f"{data_folder}/{dataset_name}/indices",
+            f"{config.FOLDS}fold.{args.fold}_val_index.npy",
+        )
+    )
 
     if args.norm:
         train_shape = train_data.shape
@@ -219,6 +227,15 @@ if __name__ == "__main__":
             open(f"{config.DATA_FOLDER}/{dataset_name}/stanard_scaler.pkl", "wb"),
         )
     if args.mode == 0:
-        training(train_data, x_steps, dataset_name, args.fold, args.lag, args.norm)
+        training(
+            train_data,
+            x_steps,
+            dataset_name,
+            args.fold,
+            args.lag,
+            args.norm,
+            train_index,
+            val_index,
+        )
     else:
         generate_train_test_indices(train_data, x_steps, dataset_name)
