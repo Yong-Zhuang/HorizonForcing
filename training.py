@@ -166,7 +166,7 @@ parser.add_argument(
     "-sub",
     "--sub",
     type=str.lower,
-    default="1",
+    default="default",
     required=True,
     help="Which subject?",
 )
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     # Collect arguments
-    setting = config.EXP_SETTING[args.system]
+    setting = config.EXP_SETTING[args.system][args.sub]
     dataset_name = config.get_dataset_name(args.system, args.sub)
     x_steps = setting["input_steps"]
 
