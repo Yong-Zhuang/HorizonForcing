@@ -4,21 +4,21 @@ This repository contains the code for the HorizonForcing project, which explores
 
 ## Supported Systems
 
-| System Name         | Subject(s)  |
-| ------------------- | ----------- |
-| lorenz              | 0.05        |
-| rossler             | 0.05        |
-| accelerometer       | 1, 3        |
-| dwelling_worm       | 1, 2        |
-| ecg                 | train, test |
-| ecosystem           |             |
-| electricity         |             |
-| gait_force          | 1, 2        |
-| gait_marker_tracker | 1, 2        |
-| geyser              |             |
-| mouse               |             |
-| pendulum            | train, test |
-| roaming_worm        |             |
+| System Name         | Subject(s) |
+| ------------------- | ---------- |
+| lorenz              | 0.05       |
+| rossler             | 0.05       |
+| accelerometer       | 1, 3       |
+| dwelling_worm       | 1, 2       |
+| ecg                 |            |
+| ecosystem           |            |
+| electricity         |            |
+| gait_force          | 1, 2       |
+| gait_marker_tracker | 1, 2       |
+| geyser              |            |
+| mouse               |            |
+| pendulum            |            |
+| roaming_worm        |            |
 
 ## Data Generation
 
@@ -51,3 +51,33 @@ python training.py -gpu {gpu-index}  -s {system-name} -sub {subject}
 We welcome contributions, experiments, and discussions from the community. Feel free to dive into the code, try out your own experiments, and share your findings or improvements through pull requests or issues.
 
 Enjoy exploring the vast potential of time series forecasting with HorizonForcing!
+
+## Task
+
+Try
+
+```
+python generate_dataset.py -s {system-name} -sub {subject}
+```
+
+```
+python training.py -gpu {gpu-index} -mode 1  -s {system-name} -sub {subject}
+```
+
+```
+python training.py -gpu {gpu-index}  -s {system-name} -sub {subject}
+```
+
+for
+
+| System Name         | Subject(s) |
+| ------------------- | ---------- |
+| rossler             | 0.05       |
+| accelerometer       | 1          |
+| dwelling_worm       | 1, 2       |
+| ecg                 |            |
+| gait_force          | 1          |
+| gait_marker_tracker | 1, 2       |
+| geyser              |            |
+| mouse               |            |
+| pendulum            |            |

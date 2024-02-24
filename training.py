@@ -132,16 +132,16 @@ def training(
                 num_layer=setting["num_encoder"],
                 max_seq=x_steps,
             )
-        if not os.path.exists(estimator.MODEL_PATH):
-            _, history = estimator.training(
-                train_X, train_Y, val_X, val_Y, config.BATCH_SIZE, config.EPOCHS
-            )
-            hist_df = pd.DataFrame(history.history)
-            hist_csv_file = f"{saved_folder}/{estimator.model_name}.csv"
-            with open(hist_csv_file, mode="w") as f:
-                hist_df.to_csv(f)
-        else:
-            print(f"{estimator.model_name} has been trained before.")
+        # if not os.path.exists(estimator.MODEL_PATH):
+        _, history = estimator.training(
+            train_X, train_Y, val_X, val_Y, config.BATCH_SIZE, config.EPOCHS
+        )
+        hist_df = pd.DataFrame(history.history)
+        hist_csv_file = f"{saved_folder}/{estimator.model_name}.csv"
+        with open(hist_csv_file, mode="w") as f:
+            hist_df.to_csv(f)
+        # else:
+        #     print(f"{estimator.model_name} has been trained before.")
 
 
 parser = argparse.ArgumentParser(description="horizon_forcing")
@@ -167,11 +167,10 @@ parser.add_argument(
     "--sub",
     type=str.lower,
     default="default",
-    required=True,
     help="Which subject?",
 )
-parser.add_argument("-norm", dest="norm", action="store_true")
-parser.add_argument("-no-norm", dest="norm", action="store_false")
+# parser.add_argument("-norm", dest="norm", action="store_true")
+# parser.add_argument("-no-norm", dest="norm", action="store_false")
 parser.set_defaults(norm=False)
 parser.add_argument(
     "-mode", metavar="int", type=int, default=0, help="0: train; 1: generate indices"
@@ -202,20 +201,8 @@ if __name__ == "__main__":
         else config.DATA_FOLDER
     )
     train_data = np.load(f"{data_folder}/{dataset_name}/train.npy")
-    train_index = np.load(
-        os.path.join(
-            f"{data_folder}/{dataset_name}/indices",
-            f"{config.FOLDS}fold.{args.fold}_train_index.npy",
-        )
-    )
-    val_index = np.load(
-        os.path.join(
-            f"{data_folder}/{dataset_name}/indices",
-            f"{config.FOLDS}fold.{args.fold}_val_index.npy",
-        )
-    )
-
-    if args.norm:
+    # if args.norm:
+    if setting["norm"]:
         train_shape = train_data.shape
         n_variables = train_shape[-1]
         train_reshaped = train_data.reshape((-1, n_variables))
@@ -224,9 +211,22 @@ if __name__ == "__main__":
         train_data = scaler.transform(train_reshaped).reshape(train_shape)
         dump(
             scaler,
-            open(f"{config.DATA_FOLDER}/{dataset_name}/stanard_scaler.pkl", "wb"),
+            open(f"{data_folder}/{dataset_name}/stanard_scaler.pkl", "wb"),
         )
     if args.mode == 0:
+        train_index = np.load(
+            os.path.join(
+                f"{data_folder}/{dataset_name}/indices",
+                f"{config.FOLDS}fold.{args.fold}_train_index.npy",
+            )
+        )
+        val_index = np.load(
+            os.path.join(
+                f"{data_folder}/{dataset_name}/indices",
+                f"{config.FOLDS}fold.{args.fold}_val_index.npy",
+            )
+        )
+
         training(
             train_data,
             x_steps,

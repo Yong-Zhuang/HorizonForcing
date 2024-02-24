@@ -1,9 +1,9 @@
-PRETRAINED = True
+PRETRAINED = False
 DATA_FOLDER = "data"
 MODEL_FOLDER = "saved_models"
 RESULT_FOLDER = "results"
 BATCH_SIZE = 50
-EPOCHS = 150
+EPOCHS = 2
 FOLDS = 5
 
 EXP_SETTING = {
@@ -12,7 +12,7 @@ EXP_SETTING = {
     "lorenz": {
         "0.05": {
             "file": "lorenz_0.05",
-            "sub": 0.05,
+            "norm": False,
             "total_steps": 58000,
             "n_training": 8500,
             "burn_steps": 8000,
@@ -40,7 +40,7 @@ EXP_SETTING = {
     "rossler": {
         "0.05": {
             "file": "rossler_0.05",
-            "sub": 0.05,
+            "norm": False,
             "total_steps": 368000,
             "n_training": 7500,
             "burn_steps": 8000,
@@ -49,7 +49,7 @@ EXP_SETTING = {
             "stride": 5,
             "input_steps": 100,
             "title": "$Lorenz$",
-            "inference_steps": 200,
+            "inference_steps": 1300,
             "gamma": 3.1065,
             "zeta": 0.228,
             "mu": 0.1105,
@@ -67,9 +67,9 @@ EXP_SETTING = {
     # -s accelerometer -sub 3 -n 5500 -mt multiple; 13000
     # -sub 1: stride 4; -sub 3: stride 2
     "accelerometer": {
-        "1": {
+        "1": {  # training samples: (5500, 400, 3); test samples: (901, 400, 3)
             "file": "accelerometer_subject1.csv.gz",
-            "sub": 1,
+            "norm": True,
             "n_training": 5500,
             "window": 400,
             "stride": 4,
@@ -89,9 +89,9 @@ EXP_SETTING = {
                 "recurrent": [(0, 0.84), (0, 0.8), (0, 0.43)],
             },
         },
-        "3": {
+        "3": {  # training samples: (5500, 400, 3); test samples: (801, 400, 3)
             "file": "accelerometer_subject3.csv.gz",
-            "sub": 3,
+            "norm": True,
             "n_training": 5500,
             "window": 400,
             "stride": 2,
@@ -115,8 +115,9 @@ EXP_SETTING = {
     # -s dwelling_worm -sub 2 -n 5600 -mt multiple; 26998, 5
     "dwelling_worm": {
         "1": {
+            # training samples: (5600, 400, 5); test samples: (1050, 400, 5)
             "file": "dwelling_worm1.csv.gz",
-            "sub": 1,
+            "norm": False,
             "n_training": 5600,
             "window": 400,
             "stride": 4,
@@ -137,8 +138,9 @@ EXP_SETTING = {
             },
         },
         "2": {
+            # training samples: (5600, 400, 5); test samples: (1050, 400, 5)
             "file": "dwelling_worm2.csv.gz",
-            "sub": 2,
+            "norm": False,
             "n_training": 5600,
             "window": 400,
             "stride": 4,
@@ -160,10 +162,10 @@ EXP_SETTING = {
         },
     },
     # -s ecg -sub 1 -n 5500 -mt multiple; 67499, 1
-    "ecg": {
-        "test": {
-            "file": "ect_test.csv.gz",
-            "sub": "test",
+    "ecg": {  #  training samples: (6710, 400, 1); test samples: (6710, 400, 1)
+        "default": {
+            "file": {"test": "ecg_test.csv.gz", "train": "ecg_train.csv.gz"},
+            "norm": False,
             "n_training": 5500,
             "window": 400,
             "stride": 10,
@@ -183,34 +185,12 @@ EXP_SETTING = {
                 "recurrent": [(0, 5.8), (0, 2.5), (0, 0.8)],
             },
         },
-        "train": {
-            "file": "ect_test.csv.gz",
-            "sub": "train",
-            "n_training": 5600,
-            "window": 400,
-            "stride": 4,
-            "input_steps": 100,
-            "title": "$ECG_2",
-            "inference_steps": 160,
-            "gamma": 2.265,
-            "zeta": 0.8575,
-            "mu": 0.4615,
-            "y_lim": {
-                "ett": [(0, 4.2), (0, 1.7), (0, 0.9)],
-                "hf": [(0, 3.3), (0, 1.23), (0, 0.65)],
-                "ett_hf": [(0, 3.3), (0, 1.23), (0, 0.65)],
-                "benchmark": [(0, 5.8), (0, 2.5), (0, 0.8)],
-                "all": [(0, 6.5), (0, 2.5), (0, 0.85)],
-                "transformers": [(0, 5.8), (0, 2.5), (0, 0.8)],
-                "recurrent": [(0, 5.8), (0, 2.5), (0, 0.8)],
-            },
-        },
     },
     # -s ecosystem -n 5200 -mt multiple; 19000, 9
-    "ecosystem": {
+    "ecosystem": {  # training samples: (5200, 400, 9); test samples: (1001, 400, 9)
         "default": {
             "file": "ecosystem.csv.gz",
-            "sub": "",
+            "norm": True,
             "n_training": 5200,
             "window": 400,
             "stride": 3,
@@ -232,10 +212,10 @@ EXP_SETTING = {
         }
     },
     # -s electricity -n 5000 -mt multiple; 140255, 1
-    "electricity": {
+    "electricity": {  # training samples: (5000, 400, 1); test samples: (1081, 400, 1)
         "default": {
             "file": "electricity_train_test.csv.gz",
-            "sub": "",
+            "norm": False,
             "n_training": 5000,
             "window": 400,
             "stride": 23,
@@ -258,9 +238,9 @@ EXP_SETTING = {
     },
     # -s gait_force -sub 2 -n 5600 -mt multiple; 60000,6
     "gait_force": {
-        "1": {
+        "1": {  # training samples: (5600, 400, 6); test samples: (1023, 400, 6)
             "file": "gait_force_patient1_speed2.csv.gz",
-            "sub": 1,
+            "norm": True,
             "n_training": 5600,
             "window": 400,
             "stride": 9,
@@ -280,9 +260,9 @@ EXP_SETTING = {
                 "recurrent": [(0, 350.7), (0, 1.1), (0, 1)],
             },
         },
-        "2": {
+        "2": {  # training samples: (5600, 400, 6); test samples: (1023, 400, 6)
             "file": "gait_force_patient1_speed2.csv.gz",
-            "sub": 2,
+            "norm": True,
             "n_training": 5600,
             "window": 400,
             "stride": 9,
@@ -305,9 +285,9 @@ EXP_SETTING = {
     },
     # -s gait_trackers -sub 2 -n 5000 -mt multiple; 12000,24
     "gait_marker_tracker": {
-        "1": {
-            "file": "gait_marker_tracker_patient1_speed1.csv.gz",
-            "sub": 1,
+        "1": {  # training samples: (5000, 400, 24); test samples: (801, 400, 24)
+            "file": "gait_marker_trackers_patient1_speed1.csv.gz",
+            "norm": True,
             "n_training": 5000,
             "window": 400,
             "stride": 2,
@@ -327,12 +307,12 @@ EXP_SETTING = {
                 "recurrent": [(0, 350.7), (0, 1.1), (0, 1)],
             },
         },
-        "2": {
-            "file": "gait_marker_tracker_patient1_speed2.csv.gz",
-            "sub": 2,
-            "n_training": 5600,
+        "2": {  # training samples: (5000, 400, 24); test samples: (801, 400, 24)
+            "file": "gait_marker_trackers_patient1_speed2.csv.gz",
+            "norm": True,
+            "n_training": 5000,
             "window": 400,
-            "stride": 9,
+            "stride": 2,
             "input_steps": 100,
             "title": "$Gait$ $Marker$ $Tracker$ sub 2",
             "inference_steps": 300,
@@ -351,10 +331,10 @@ EXP_SETTING = {
         },
     },
     # -s geyser -n 5000 -mt multiple; 140255, 1
-    "geyser": {
+    "geyser": {  # training samples: (5000, 400, 1); test samples: (1115, 400, 1)
         "default": {
             "file": "geyser_train_test.csv.gz",
-            "sub": "",
+            "norm": False,
             "n_training": 5000,
             "window": 400,
             "stride": 23,
@@ -376,10 +356,10 @@ EXP_SETTING = {
         }
     },
     # -s mouse -n 5400 -mt multiple; 45726, 1
-    "mouse": {
+    "mouse": {  # training samples: (5400, 400, 1); test samples: (1076, 400, 1)
         "default": {
             "file": "mouse.csv.gz",
-            "sub": "",
+            "norm": False,
             "n_training": 5400,
             "window": 400,
             "stride": 7,
@@ -401,10 +381,10 @@ EXP_SETTING = {
         }
     },
     # -s pendulum -n 5000 -mt multiple; 5927, 3
-    "pendulum": {
-        "test": {
-            "file": "pendulum_test.csv.gz",
-            "sub": "test",
+    "pendulum": {  # training samples: (5528, 400, 3); test samples: (5584, 400, 3)
+        "default": {
+            "file": {"train": "pendulum_train.csv.gz", "test": "pendulum_test.csv.gz"},
+            "norm": True,
             "n_training": 5000,
             "window": 400,
             "stride": 1,
@@ -424,34 +404,12 @@ EXP_SETTING = {
                 "recurrent": [(0, 350.7), (0, 1.1), (0, 1)],
             },
         },
-        "train": {
-            "file": "pendulum_train.csv.gz",
-            "sub": "train",
-            "n_training": 5600,
-            "window": 400,
-            "stride": 9,
-            "input_steps": 100,
-            "title": "$Pendulum_2$",
-            "inference_steps": 300,
-            "gamma": 158.6875,
-            "zeta": 0.501,
-            "mu": 0.2565,
-            "y_lim": {
-                "ett": [(0, 320), (0, 12), (0, 0.65)],
-                "hf": [(0, 290), (0, 0.92), (0, 0.58)],
-                "ett_hf": [(0, 290), (0, 0.92), (0, 0.58)],
-                "benchmark": [(0, 350.7), (0, 1.1), (0, 1)],
-                "all": [(0, 310.7), (0, 1.1), (0, 1.1)],
-                "transformers": [(0, 350.7), (0, 1.1), (0, 1)],
-                "recurrent": [(0, 350.7), (0, 1.1), (0, 1)],
-            },
-        },
     },
     # -s roaming_worm -n 5600 -mt multiple; 26995, 5
-    "roaming_worm": {
+    "roaming_worm": {  # training samples: (5600, 400, 5); test samples: (1049, 400, 5)
         "default": {
             "file": "roaming_worm2.csv.gz",
-            "sub": "",
+            "norm": True,
             "n_training": 5600,
             "window": 400,
             "stride": 4,

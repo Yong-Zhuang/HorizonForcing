@@ -27,7 +27,7 @@ def split_sequence(sequence, window_size, stride):
         end_ix = i + window_size
         if np.isnan(sequence[i:end_ix]).any():
             continue
-        print(f"generate sample start at {i}")
+        # print(f"generate sample start at {i}")
         # check if we are beyond the sequence
         if end_ix > sequence.shape[0]:
             break
@@ -70,7 +70,6 @@ parser.add_argument(
     "--sub",
     type=str.lower,
     default="default",
-    required=True,
     help="Which subject?",
 )
 
@@ -87,19 +86,38 @@ if __name__ == "__main__":
     if not os.path.exists(path):
         os.makedirs(path)
 
-    if "lorenz" in dataset_name:
-        lorenz = chaos_sys.Lorenz(setting["delta-t"], setting["total_steps"])
-        sequence = lorenz.single_sequence_generating()[setting["burn_steps"] :]
-    elif "rossler" in dataset_name:
-        rossler = chaos_sys.Rossler(setting["delta-t"], setting["total_steps"])
-        sequence = rossler.single_sequence_generating()[setting["burn_steps"] :]
+    if args.system == "ecg" or args.system == "pendulum":
+        sequence_train = pd.read_csv(f"data/datasets/{setting['file']['train']}").values
+        sequence_test = pd.read_csv(f"data/datasets/{setting['file']['test']}").values
+        if args.system == "pendulum":
+            sequence_train = sequence_train.transpose()
+            sequence_test = sequence_test.transpose()
+        print(
+            f"sequence_train shape {sequence_train.shape, sequence_train[:3]}, sequence_test shape {sequence_test.shape, sequence_test[:3]}"
+        )
+        train_samples = split_sequence(
+            sequence_train, setting["window"], setting["stride"]
+        )
+        test_samples = split_sequence(
+            sequence_test, setting["window"], setting["stride"]
+        )
     else:
-        sequence = pd.read_csv(f"data/datasets/{setting['file']}").values
-    samples = split_sequence(sequence, setting["window"], setting["stride"])
-    train_samples, test_samples = (
-        samples[: setting["n_training"]],
-        samples[setting["n_training"] :],
-    )
+        if args.system == "lorenz":
+            lorenz = chaos_sys.Lorenz(setting["delta-t"], setting["total_steps"])
+            sequence = lorenz.single_sequence_generating()[setting["burn_steps"] :]
+        elif args.system == "rossler":
+            rossler = chaos_sys.Rossler(setting["delta-t"], setting["total_steps"])
+            sequence = rossler.single_sequence_generating()[setting["burn_steps"] :]
+        else:
+            sequence = pd.read_csv(f"data/datasets/{setting['file']}").values
+            if args.system == "ecosystem":
+                sequence = sequence.transpose()
+        print(f"sequence shape {sequence.shape, sequence[:3]}")
+        samples = split_sequence(sequence, setting["window"], setting["stride"])
+        train_samples, test_samples = (
+            samples[: setting["n_training"]],
+            samples[setting["n_training"] :],
+        )
 
     # Names of data files.
     train_output_file = f"{path}/train.npy"
@@ -107,8 +125,8 @@ if __name__ == "__main__":
     test_output_file = f"{path}/test.npy"
     # Save the first n_examples as train,
     # rest as test.
-    np.save(train_output_file, train_samples)
-    np.save(test_output_file, test_samples)
+    # np.save(train_output_file, train_samples)
+    # np.save(test_output_file, test_samples)
     print(
         f"training samples: {train_samples.shape}; test samples: {test_samples.shape}"
     )
