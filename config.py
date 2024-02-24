@@ -3,7 +3,7 @@ DATA_FOLDER = "data"
 MODEL_FOLDER = "saved_models"
 RESULT_FOLDER = "results"
 BATCH_SIZE = 50
-EPOCHS = 2
+EPOCHS = 150
 FOLDS = 5
 
 EXP_SETTING = {
