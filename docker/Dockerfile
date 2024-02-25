@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-gpu-jupyter
+FROM tensorflow/tensorflow:2.11.0-gpu-jupyter
 RUN apt-get update && apt-get install -y git openssh-client screen
 RUN pip install --upgrade pip
 COPY requirements.txt /tmp/
