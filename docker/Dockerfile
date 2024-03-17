@@ -1,5 +1,5 @@
 FROM tensorflow/tensorflow:2.11.0-gpu-jupyter
-RUN apt-get update && apt-get install -y git openssh-client screen
+RUN apt-get update && apt-get install -y git openssh-client screen nano
 RUN pip install --upgrade pip
 COPY requirements.txt /tmp/
 RUN pip install --requirement /tmp/requirements.txt

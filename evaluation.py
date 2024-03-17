@@ -388,6 +388,19 @@ ALL = {
     "HF15": {"fun": get_pred_hf, "factor": 15},
     "HF20": {"fun": get_pred_hf, "factor": 20},
 }
+NO_AUTO_INFORMER = {
+    "BLS": {"fun": get_pred_bls_elm},
+    "ELM": {"fun": get_pred_bls_elm},
+    #   "SSES":{"fun":get_pred_ss},
+    "SSFS": {"fun": get_pred_dss, "factor": "is"},
+    "MTF": {"fun": get_pred_mt},
+    # "IF": {"fun": get_pred_true_informer},
+    # "AF": {"fun": get_pred_true_autoformer},
+    "HF5": {"fun": get_pred_hf, "factor": 5},
+    "HF10": {"fun": get_pred_hf, "factor": 10},
+    "HF15": {"fun": get_pred_hf, "factor": 15},
+    "HF20": {"fun": get_pred_hf, "factor": 20},
+}
 MODE = {
     "ett": ETT_ABLATION,
     "hf": HF_STUDY,
@@ -395,6 +408,7 @@ MODE = {
     "all": ALL,
     "recurrent": RECURRENT,
     "transformers": TRANSFORMERS,
+    "no-auto-informer": NO_AUTO_INFORMER,
 }
 
 
@@ -470,136 +484,56 @@ def plot_comparison(
         rmse_out[:, idx], ne_out[:, idx], smape_out[:, idx] = rmse[2], ne[2], smape[2]
         return perform, rmse_out, ne_out, smape_out
 
-    for idx_data, (sys, params) in enumerate(config.EXP_SETTING.items()):
-        key, x_steps, inference_steps = (
-            params["title"],
-            params["input_steps"],
-            params["inference_steps"],
-        )
-        gamma, zeta, mu, y_lim = (
-            params["gamma"],
-            params["zeta"],
-            params["mu"],
-            params["y_lim"][study_mode],
-        )
+    for idx_data, (sys, setting) in enumerate(config.EXP_SETTING.items()):
+        for sub, params in setting.items():
+            key, x_steps, inference_steps = (
+                params["title"],
+                params["input_steps"],
+                params["inference_steps"],
+            )
+            gamma, zeta, mu, y_lim = (
+                params["gamma"],
+                params["zeta"],
+                params["mu"],
+                params["y_lim"][study_mode],
+            )
 
-        dataset_name = config.get_dataset_name(sys)
-        train_samples, test_inputs, y_true = load_model_config(
-            dataset_name, fold, normalization, x_steps
-        )
-        print(
-            f"train_samples {train_samples.shape}, test_inputs {test_inputs.shape}, y_true {y_true.shape}"
-        )
-        y_true = y_true[:, :inference_steps]
-        saved_folder = config.get_model_name(dataset_name, fold, normalization, x_y_lag)
-        if not os.path.exists(f"{config.RESULT_FOLDER}/{saved_folder}"):
-            os.makedirs(f"{config.RESULT_FOLDER}/{saved_folder}")
-        perform = None
-        rmse_out, ne_out, smape_out = None, None, None
-        colors = []
-        pred_bls, pred_elm = None, None
-        for idx_pred, (name, vals) in enumerate(pred_funs.items()):
-            if rmse_out is None:
-                rmse_out, ne_out, smape_out = (
-                    np.empty((inference_steps, num_models)),
-                    np.empty((inference_steps, num_models)),
-                    np.empty((inference_steps, num_models)),
-                )
-                rmse_out[:], ne_out[:], smape_out[:] = np.nan, np.nan, np.nan
-            if name == "BLS":
-                if pred_bls is None:
-                    pred_bls, pred_elm = vals["fun"](
-                        saved_folder,
-                        train_samples,
-                        test_inputs,
-                        inference_steps,
-                        x_y_lag,
+            dataset_name = config.get_dataset_name(sys, sub)
+            train_samples, test_inputs, y_true = load_model_config(
+                dataset_name, fold, normalization, x_steps
+            )
+            print(
+                f"train_samples {train_samples.shape}, test_inputs {test_inputs.shape}, y_true {y_true.shape}"
+            )
+            y_true = y_true[:, :inference_steps]
+            saved_folder = config.get_model_name(
+                dataset_name, fold, normalization, x_y_lag
+            )
+            if not os.path.exists(f"{config.RESULT_FOLDER}/{saved_folder}"):
+                os.makedirs(f"{config.RESULT_FOLDER}/{saved_folder}")
+            perform = None
+            rmse_out, ne_out, smape_out = None, None, None
+            colors = []
+            pred_bls, pred_elm = None, None
+            for idx_pred, (name, vals) in enumerate(pred_funs.items()):
+                if rmse_out is None:
+                    rmse_out, ne_out, smape_out = (
+                        np.empty((inference_steps, num_models)),
+                        np.empty((inference_steps, num_models)),
+                        np.empty((inference_steps, num_models)),
                     )
-                perform, rmse_out, ne_out, smape_out = get_results(
-                    pred_bls[:, x_steps : x_steps + inference_steps],
-                    y_true,
-                    perform,
-                    rmse_out,
-                    ne_out,
-                    smape_out,
-                    idx_pred,
-                    dataset_name,
-                    "BLS",
-                    normalization,
-                )
-                colors.append(config.COLOR_BANK["BLS"])
-            elif name == "ELM":
-                if pred_elm is None:
-                    pred_bls, pred_elm = vals["fun"](
-                        saved_folder,
-                        train_samples,
-                        test_inputs,
-                        inference_steps,
-                        x_y_lag,
-                    )
-                perform, rmse_out, ne_out, smape_out = get_results(
-                    pred_elm[:, x_steps : x_steps + inference_steps],
-                    y_true,
-                    perform,
-                    rmse_out,
-                    ne_out,
-                    smape_out,
-                    idx_pred,
-                    dataset_name,
-                    "ELM",
-                    normalization,
-                )
-                colors.append(config.COLOR_BANK["ELM"])
-            elif name == "IF":
-                pred, true = vals["fun"](sys, inference_steps)
-                perform, rmse_out, ne_out, smape_out = get_results(
-                    pred,
-                    true,
-                    perform,
-                    rmse_out,
-                    ne_out,
-                    smape_out,
-                    idx_pred,
-                    dataset_name,
-                    "Informer",
-                    normalization,
-                )
-                colors.append(config.COLOR_BANK["IF"])
-            elif name == "AF":
-                pred, true = vals["fun"](sys, inference_steps)
-                perform, rmse_out, ne_out, smape_out = get_results(
-                    pred,
-                    true,
-                    perform,
-                    rmse_out,
-                    ne_out,
-                    smape_out,
-                    idx_pred,
-                    dataset_name,
-                    "Autoformer",
-                    normalization,
-                )
-                colors.append(config.COLOR_BANK["AF"])
-
-            else:
-                if vals.get("factor") is not None:
-                    pred = vals["fun"](
-                        saved_folder,
-                        test_inputs,
-                        inference_steps,
-                        x_y_lag,
-                        vals["factor"],
-                    )
-                else:
-                    pred = vals["fun"](
-                        saved_folder, test_inputs, inference_steps, x_y_lag
-                    )
-                if pred is not None:
-                    print(
-                        f"{dataset_name}, {name}, pred shape is {pred.shape}; y_true shape is {y_true.shape}; inference_steps {inference_steps}"
-                    )
+                    rmse_out[:], ne_out[:], smape_out[:] = np.nan, np.nan, np.nan
+                if name == "BLS":
+                    if pred_bls is None:
+                        pred_bls, pred_elm = vals["fun"](
+                            saved_folder,
+                            train_samples,
+                            test_inputs,
+                            inference_steps,
+                            x_y_lag,
+                        )
                     perform, rmse_out, ne_out, smape_out = get_results(
-                        pred[:, x_steps : x_steps + inference_steps],
+                        pred_bls[:, x_steps : x_steps + inference_steps],
                         y_true,
                         perform,
                         rmse_out,
@@ -607,49 +541,133 @@ def plot_comparison(
                         smape_out,
                         idx_pred,
                         dataset_name,
-                        name,
+                        "BLS",
                         normalization,
                     )
-                colors.append(config.COLOR_BANK[name])
-        rmse_out_df = pd.DataFrame(rmse_out, columns=model_names).reset_index()
-        ne_out_df = pd.DataFrame(ne_out, columns=model_names).reset_index()
-        smape_out_df = pd.DataFrame(smape_out, columns=model_names).reset_index()
-        palette = sns.color_palette(colors)
-        _plot_effective_range(
-            rmse_out_df,
-            axs[0, idx_data],
-            palette,
-            y_lim[0],
-            inference_steps,
-            y_label="$Error$ $\gamma$",
-            fontsize=fontsize,
-        )
-        _plot_effective_range(
-            ne_out_df,
-            axs[1, idx_data],
-            palette,
-            y_lim[1],
-            inference_steps,
-            y_label="$Error$ $\zeta$",
-            fontsize=fontsize,
-        )
-        _plot_effective_range(
-            smape_out_df,
-            axs[2, idx_data],
-            palette,
-            y_lim[2],
-            inference_steps,
-            y_label="$Error$ $\mu$",
-            fontsize=fontsize,
-        )
-        # if idx_data!=0:
-        axs[0, idx_data].yaxis.label.set_visible(False)
-        axs[1, idx_data].yaxis.label.set_visible(False)
-        axs[2, idx_data].yaxis.label.set_visible(False)
-        # axs[0,idx_data].set_title(key)
-        axs[2, idx_data].xaxis.label.set_visible(False)
+                    colors.append(config.COLOR_BANK["BLS"])
+                elif name == "ELM":
+                    if pred_elm is None:
+                        pred_bls, pred_elm = vals["fun"](
+                            saved_folder,
+                            train_samples,
+                            test_inputs,
+                            inference_steps,
+                            x_y_lag,
+                        )
+                    perform, rmse_out, ne_out, smape_out = get_results(
+                        pred_elm[:, x_steps : x_steps + inference_steps],
+                        y_true,
+                        perform,
+                        rmse_out,
+                        ne_out,
+                        smape_out,
+                        idx_pred,
+                        dataset_name,
+                        "ELM",
+                        normalization,
+                    )
+                    colors.append(config.COLOR_BANK["ELM"])
+                elif name == "IF":
+                    pred, true = vals["fun"](sys, inference_steps)
+                    perform, rmse_out, ne_out, smape_out = get_results(
+                        pred,
+                        true,
+                        perform,
+                        rmse_out,
+                        ne_out,
+                        smape_out,
+                        idx_pred,
+                        dataset_name,
+                        "Informer",
+                        normalization,
+                    )
+                    colors.append(config.COLOR_BANK["IF"])
+                elif name == "AF":
+                    pred, true = vals["fun"](sys, inference_steps)
+                    perform, rmse_out, ne_out, smape_out = get_results(
+                        pred,
+                        true,
+                        perform,
+                        rmse_out,
+                        ne_out,
+                        smape_out,
+                        idx_pred,
+                        dataset_name,
+                        "Autoformer",
+                        normalization,
+                    )
+                    colors.append(config.COLOR_BANK["AF"])
 
-        result[key] = perform
+                else:
+                    if vals.get("factor") is not None:
+                        pred = vals["fun"](
+                            saved_folder,
+                            test_inputs,
+                            inference_steps,
+                            x_y_lag,
+                            vals["factor"],
+                        )
+                    else:
+                        pred = vals["fun"](
+                            saved_folder, test_inputs, inference_steps, x_y_lag
+                        )
+                    if pred is not None:
+                        print(
+                            f"{dataset_name}, {name}, pred shape is {pred.shape}; y_true shape is {y_true.shape}; inference_steps {inference_steps}"
+                        )
+                        perform, rmse_out, ne_out, smape_out = get_results(
+                            pred[:, x_steps : x_steps + inference_steps],
+                            y_true,
+                            perform,
+                            rmse_out,
+                            ne_out,
+                            smape_out,
+                            idx_pred,
+                            dataset_name,
+                            name,
+                            normalization,
+                        )
+                    colors.append(config.COLOR_BANK[name])
+            rmse_out_df = pd.DataFrame(rmse_out, columns=model_names).reset_index()
+            ne_out_df = pd.DataFrame(ne_out, columns=model_names).reset_index()
+            smape_out_df = pd.DataFrame(smape_out, columns=model_names).reset_index()
+            palette = sns.color_palette(colors)
+            _plot_effective_range(
+                rmse_out_df,
+                axs[0, idx_data],
+                palette,
+                y_lim[0],
+                inference_steps,
+                y_label="$Error$ $\gamma$",
+                fontsize=fontsize,
+            )
+            _plot_effective_range(
+                ne_out_df,
+                axs[1, idx_data],
+                palette,
+                y_lim[1],
+                inference_steps,
+                y_label="$Error$ $\zeta$",
+                fontsize=fontsize,
+            )
+            _plot_effective_range(
+                smape_out_df,
+                axs[2, idx_data],
+                palette,
+                y_lim[2],
+                inference_steps,
+                y_label="$Error$ $\mu$",
+                fontsize=fontsize,
+            )
+            # if idx_data!=0:
+            axs[0, idx_data].yaxis.label.set_visible(False)
+            axs[1, idx_data].yaxis.label.set_visible(False)
+            axs[2, idx_data].yaxis.label.set_visible(False)
+            # axs[0,idx_data].set_title(key)
+            axs[2, idx_data].xaxis.label.set_visible(False)
+
+            result[key] = perform
+
     df_result = pd.concat(result)
     df_result = df_result.round(3)
     handles, labels = axs[-1, -1].get_legend_handles_labels()
