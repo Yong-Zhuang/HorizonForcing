@@ -125,8 +125,8 @@ if __name__ == "__main__":
     test_output_file = f"{path}/test.npy"
     # Save the first n_examples as train,
     # rest as test.
-    # np.save(train_output_file, train_samples)
-    # np.save(test_output_file, test_samples)
+    np.save(train_output_file, train_samples)
+    np.save(test_output_file, test_samples)
     print(
         f"training samples: {train_samples.shape}; test samples: {test_samples.shape}"
     )
