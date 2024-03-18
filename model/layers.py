@@ -6,7 +6,7 @@ Created on Sat Jan 28 2020
 import tensorflow as tf
 import math as m
 import numpy as np
-import tensorflow_probability as tfp
+from tensorflow.python.ops.distributions import bernoulli
 from tensorflow import keras
 from tensorflow.keras import backend as K
 
@@ -412,9 +412,7 @@ class ScheduledSamplingLayer(keras.layers.Layer):
         def get_next_input(true, estimate):
             # Return -1s where we do not sample, and sample_ids elsewhere
             current_batch_size = tf.shape(true)[0]
-            select_sampler = tfp.distributions.Bernoulli(
-                probs=self.beta, dtype=tf.bool
-            )  # bernoulli.Bernoulli(probs=self.beta, dtype=tf.bool)
+            select_sampler = bernoulli.Bernoulli(probs=self.beta, dtype=tf.bool)
             select_sample = select_sampler.sample(sample_shape=current_batch_size)
             sample_ids = tf.where(
                 select_sample,

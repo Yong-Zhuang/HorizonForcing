@@ -398,8 +398,8 @@ NO_AUTO_INFORMER = {
     # "AF": {"fun": get_pred_true_autoformer},
     "HF5": {"fun": get_pred_hf, "factor": 5},
     "HF10": {"fun": get_pred_hf, "factor": 10},
-    "HF15": {"fun": get_pred_hf, "factor": 15},
-    "HF20": {"fun": get_pred_hf, "factor": 20},
+    # "HF15": {"fun": get_pred_hf, "factor": 15},
+    # "HF20": {"fun": get_pred_hf, "factor": 20},
 }
 MODE = {
     "ett": ETT_ABLATION,
